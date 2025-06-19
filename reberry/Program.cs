@@ -7,7 +7,7 @@ using StREberryTag.Core.Models;
 
 class Program
 {
-    static void UpdateAlbumTags(UpdateRequest request)
+    static async Task UpdateAlbumTags(UpdateRequest request)
     {
         if (!Path.Exists(request.Path))
             return;
@@ -18,8 +18,11 @@ class Program
             .Select(p => new Track(p));
 
         var albumInfo = request.ToAlbumInfo();
-        foreach (var track in tracks)
+        await Parallel.ForEachAsync(tracks, (track, token) =>
         {
+            if (token.IsCancellationRequested)
+                return ValueTask.FromCanceled(token);
+            
             var updated = TagFixer.UpdateArtist(track);
             var possiblyParsed = AudioData.ParseExistingTitle(updated.Title);
             if (possiblyParsed is Just<(string, string)> just)
@@ -27,12 +30,14 @@ class Program
                 updated = TagFixer.UpdateTrackNum(updated, just.Value.Item1);
                 updated = TagFixer.UpdateTitle(updated, just.Value.Item2);
             }
-        
+
             updated = TagFixer.UpdateAlbumLevelInfo(updated, albumInfo);
             updated = TagFixer.UpdateCoverEmbed(updated, albumInfo.CoverPath);
-        
+
             updated.Save();
-        }
+            
+            return ValueTask.CompletedTask;
+        });
     }
 
     static RootCommand BuildCommand()
@@ -81,7 +86,7 @@ class Program
             .WithOption(trackTotalOption)
             .WithOption(discTotalOption)
             .WithOption(coverOption)
-            .WithHandler(UpdateAlbumTags, new UpdateRequestBinder(
+            .WithAsyncHandler(UpdateAlbumTags, new UpdateRequestBinder(
                   pathArgument
                 , commentOption
                 , genreOption

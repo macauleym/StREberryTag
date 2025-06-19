@@ -24,12 +24,10 @@ public static class TagFixer
 
     public static Track UpdateTrackNum(Track forTrack, string number)
     {
-        if (string.IsNullOrWhiteSpace(number))
+        if (string.IsNullOrWhiteSpace(number) 
+        || !int.TryParse(number, out var trackNum))
             return forTrack;
-        
-        if (!int.TryParse(number, out var trackNum))
-            return forTrack;
-        
+
         forTrack.TrackNumber    = trackNum;
         forTrack.TrackNumberStr = number;
 
@@ -51,7 +49,8 @@ public static class TagFixer
 
     public static Track UpdateCoverEmbed(Track forTrack, string coverPath)
     {
-        if (string.IsNullOrWhiteSpace(coverPath))
+        if (string.IsNullOrWhiteSpace(coverPath)
+        || !Path.Exists(coverPath))
             return forTrack;
         
         var picInfo = PictureInfo.fromBinaryData(File.ReadAllBytes(coverPath), PictureInfo.PIC_TYPE.CD);

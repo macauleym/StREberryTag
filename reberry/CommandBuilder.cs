@@ -21,7 +21,7 @@ public class CommandBuilder(RootCommand root)
         return this;
     }
 
-    public CommandBuilder WithHandler<T>(Action<T> handler, BinderBase<T> binder)
+    public CommandBuilder WithAsyncHandler<T>(Func<T, Task> handler, BinderBase<T> binder)
     {
         rootCommand.SetHandler(handler, binder);
 
