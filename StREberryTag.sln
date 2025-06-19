@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StREberryTag.Core", "StREberryTag.Core\StREberryTag.Core.csproj", "{5A022487-9D87-48F5-9A05-C591C130FD2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "reberry", "reberry\reberry.csproj", "{57FFCC8A-86F3-4AFE-9600-7076B7F47872}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5A022487-9D87-48F5-9A05-C591C130FD2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A022487-9D87-48F5-9A05-C591C130FD2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A022487-9D87-48F5-9A05-C591C130FD2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A022487-9D87-48F5-9A05-C591C130FD2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57FFCC8A-86F3-4AFE-9600-7076B7F47872}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57FFCC8A-86F3-4AFE-9600-7076B7F47872}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57FFCC8A-86F3-4AFE-9600-7076B7F47872}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57FFCC8A-86F3-4AFE-9600-7076B7F47872}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
