@@ -40,7 +40,64 @@ class Program
         });
     }
 
-    static RootCommand BuildCommand()
+    static async Task CopyTags(CopyRequest request)
+    {
+        if (!Path.Exists(request.FolderPath)
+        || !Directory.Exists(request.FolderPath))
+            return;
+
+        var directoryName = new DirectoryInfo(request.FolderPath).Name;
+        var wavFiles = Directory
+            .GetFiles(request.FolderPath)
+            .Where(f => f.EndsWith(".wav"));
+
+        var zshing = new Zsh();
+        await Parallel.ForEachAsync(wavFiles, (wavFile, cancellationToken) =>
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return ValueTask.FromCanceled(cancellationToken);
+
+            var flacFile = wavFile.Replace("wav", "flac");
+            if (!Path.Exists(flacFile))
+                return ValueTask.CompletedTask;
+
+            var wavTrack = new Track(wavFile);
+            var flacTrack = new Track(flacFile);
+            wavTrack.CopyMetadataTo(flacTrack);
+            
+            var desiredCoverPath = string.IsNullOrWhiteSpace(request.CoverPath)
+                ? Path.Combine(request.FolderPath, directoryName + ".jpeg")
+                : request.CoverPath;
+            TagFixer.UpdateCoverEmbed(flacTrack, desiredCoverPath)
+                .Save();
+            
+            Console.WriteLine($"Copied {wavFile} to {flacFile}.");
+            
+            return ValueTask.CompletedTask;
+        });
+    }
+    
+    static Command BuildWavToFlacCommand()
+    {
+        var pathArgument = new Argument<string>(
+            "FolderPath"
+            , () => "."
+            , "Path to look for wav & flac files"
+            );
+        var coverOption = new Option<string>(
+              aliases: ["--cover", "-c"]
+            , description: "Explicit path to use for the album cover."
+            );
+
+        return new CommandBuilder(new Command(
+                "wav-to-flac"
+                ))
+            .WithArgument(pathArgument)
+            .WithAsyncHandler(CopyTags, new CopyRequestBinder(pathArgument, coverOption))
+            .Build();
+    }
+    
+    static Command BuildRootCommand()
     {
         var pathArgument = new Argument<string>(
               "AlbumPath"
@@ -77,7 +134,8 @@ class Program
             );
         
         return new CommandBuilder(new RootCommand(
-                description: "Fixes tags in audio files to allow Strawberry to understand them naturally."))
+                description: "Fixes tags in audio files to allow Strawberry to understand them naturally."
+                ))
             .WithArgument(pathArgument)
             .WithOption(commentOption)
             .WithOption(genreOption)
@@ -86,6 +144,7 @@ class Program
             .WithOption(trackTotalOption)
             .WithOption(discTotalOption)
             .WithOption(coverOption)
+            .WithSubCommand(BuildWavToFlacCommand())
             .WithAsyncHandler(UpdateAlbumTags, new UpdateRequestBinder(
                   pathArgument
                 , commentOption
@@ -100,6 +159,6 @@ class Program
     }
 
     public static async Task<int> Main(params string[] args) =>
-        await BuildCommand()
+        await BuildRootCommand()
             .InvokeAsync(args);
 }

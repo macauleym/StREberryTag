@@ -3,31 +3,38 @@ using System.CommandLine.Binding;
 
 namespace reberry;
 
-public class CommandBuilder(RootCommand root)
+public class CommandBuilder(Command root)
 {
-    RootCommand rootCommand = root;
+    Command command = root;
 
     public CommandBuilder WithArgument<T>(Argument<T> arg)
     {
-        rootCommand.AddArgument(arg);
+        command.AddArgument(arg);
 
         return this;
     }
 
     public CommandBuilder WithOption<T>(Option<T> option)
     {
-        rootCommand.AddOption(option);
+        command.AddOption(option);
 
         return this;
     }
 
+    public CommandBuilder WithSubCommand(Command sub)
+    {
+        command.AddCommand(sub);
+
+        return this;
+    }
+    
     public CommandBuilder WithAsyncHandler<T>(Func<T, Task> handler, BinderBase<T> binder)
     {
-        rootCommand.SetHandler(handler, binder);
+        command.SetHandler(handler, binder);
 
         return this;
     }
 
-    public RootCommand Build() => 
-        rootCommand;
+    public Command Build() => 
+        command;
 }

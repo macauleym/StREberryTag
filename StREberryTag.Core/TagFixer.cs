@@ -53,7 +53,7 @@ public static class TagFixer
         || !Path.Exists(coverPath))
             return forTrack;
         
-        var picInfo = PictureInfo.fromBinaryData(File.ReadAllBytes(coverPath), PictureInfo.PIC_TYPE.CD);
+        var picInfo = PictureInfo.fromBinaryData(File.ReadAllBytes(coverPath), PictureInfo.PIC_TYPE.Front);
         forTrack.EmbeddedPictures.Add(picInfo);
 
         return forTrack;
